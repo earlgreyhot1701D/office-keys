@@ -8,6 +8,7 @@ import { calculateTypingGrade, getGradeRequirements } from '@/lib/grading';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import HistoryCard from '@/components/HistoryCard';
 import { saveResult } from '@/lib/history';
+import { getRandomText, detectLevelFromText } from '@/lib/packs';
 
 interface TypingStats {
   wpm: number;
@@ -42,8 +43,11 @@ const Index = () => {
   };
 
   const handleChangeText = () => {
-    setGameMode('select');
+    const level = detectLevelFromText(currentText);
+    const next = getRandomText(level, currentText);
+    setCurrentText(next);
     setStats(null);
+    setGameMode('play');
   };
 
   return (
@@ -210,6 +214,7 @@ const Index = () => {
                 onClick={handleChangeText}
                 variant="outline"
                 size="sm"
+                aria-label="Change to a random passage at the same length level"
               >
                 Change Text
               </Button>
