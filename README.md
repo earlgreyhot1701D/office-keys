@@ -80,7 +80,7 @@ All changes listed below were made during the hackathon window.
 
 ### August 4–27, 2025
 - **Aug 4:** Project initialized and base typing test built.
-- **Aug XX:** [Add brief description of feature or improvement]
+- **Aug 12:** Added results history with localStorage and CSV export.
 - **Aug XX:** [Add brief description of feature or improvement]
 - **Aug XX:** [Add brief description of feature or improvement]
 
