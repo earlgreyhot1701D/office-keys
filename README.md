@@ -81,6 +81,7 @@ All changes listed below were made during the hackathon window.
 ### August 4–27, 2025
 - **Aug 4:** Project initialized and base typing test built.
 - **Aug 12:** Added results history with localStorage and CSV export.
+  **Aug 12:** Added randomized “Change Text” using level-based packs for variety during practice.
 - **Aug XX:** [Add brief description of feature or improvement]
 - **Aug XX:** [Add brief description of feature or improvement]
 
