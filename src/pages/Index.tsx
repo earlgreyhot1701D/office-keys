@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TypingGame from '@/components/TypingGame';
 import TextSelector from '@/components/TextSelector';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trophy, Target, Clock, Zap, Award, HelpCircle } from 'lucide-react';
+import { Trophy, Target, Clock, Zap, Award, HelpCircle, Home, RotateCcw } from 'lucide-react';
 import { calculateTypingGrade, getGradeRequirements } from '@/lib/grading';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import HistoryCard from '@/components/HistoryCard';
 import { saveResult } from '@/lib/history';
 import { getRandomText, detectLevelFromText } from '@/lib/packs';
@@ -50,9 +51,116 @@ const Index = () => {
     setGameMode('play');
   };
 
+  const handleChooseLevel = () => {
+    setGameMode('select');
+    setStats(null);
+  };
+
+  // Keyboard shortcuts with safety guards
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Safety guard: don't fire if modifier keys are pressed or if focus is on input elements
+      if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+      
+      const activeElement = document.activeElement;
+      const isInputFocused = activeElement instanceof HTMLElement && (
+        activeElement.tagName === 'INPUT' ||
+        activeElement.tagName === 'TEXTAREA' ||
+        activeElement.contentEditable === 'true'
+      );
+      
+      if (isInputFocused) return;
+
+      switch (event.key.toLowerCase()) {
+        case 'h':
+        case 'escape':
+          event.preventDefault();
+          handleChooseLevel();
+          break;
+        case 'n':
+          event.preventDefault();
+          handleChangeText();
+          break;
+        case 'r':
+          if (stats) {
+            event.preventDefault();
+            handlePlayAgain();
+          }
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [stats]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-4">
-      <div className="container mx-auto py-8">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      {/* Persistent Header Nav */}
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          {/* Left: App Title */}
+          <Button
+            variant="ghost"
+            size="lg"
+            onClick={handleChooseLevel}
+            aria-label="Go to Home / Choose Level"
+            className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent hover:from-primary/80 hover:to-accent/80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          >
+            Office Keys
+          </Button>
+
+          {/* Right: Navigation */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleChooseLevel}
+              aria-label="Go to Home / Choose Level (Shortcut: H)"
+              className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            >
+              <Home className="w-4 h-4 mr-2" />
+              Home
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleChangeText}
+              aria-label="Start New Test with different text (Shortcut: N)"
+              className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            >
+              <RotateCcw className="w-4 h-4 mr-2" />
+              New Test
+            </Button>
+            
+            {/* Keyboard Shortcuts Help */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label="View keyboard shortcuts"
+                  className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <div className="space-y-2 text-sm">
+                  <p className="font-medium">Keyboard Shortcuts:</p>
+                  <div className="space-y-1">
+                    <p><kbd className="px-1 py-0.5 text-xs bg-muted rounded">H</kbd> or <kbd className="px-1 py-0.5 text-xs bg-muted rounded">Esc</kbd> - Home</p>
+                    <p><kbd className="px-1 py-0.5 text-xs bg-muted rounded">N</kbd> - New Test</p>
+                    <p><kbd className="px-1 py-0.5 text-xs bg-muted rounded">R</kbd> - Try Again (when completed)</p>
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-4">
@@ -184,14 +292,35 @@ const Index = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex justify-center gap-4 pt-4">
-                      <Button onClick={handlePlayAgain} size="lg">
+                    <div className="flex flex-wrap justify-center gap-3 pt-4">
+                      <Button 
+                        onClick={handlePlayAgain} 
+                        size="lg"
+                        aria-label="Try Again with same text (Shortcut: R)"
+                        className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      >
                         <Zap className="w-4 h-4 mr-2" />
                         Try Again
                       </Button>
-                      <Button onClick={handleChangeText} variant="outline" size="lg">
-                        <Clock className="w-4 h-4 mr-2" />
-                        Change Text
+                      <Button 
+                        onClick={handleChangeText} 
+                        variant="outline" 
+                        size="lg"
+                        aria-label="Change Text to new passage (Shortcut: N)"
+                        className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      >
+                        <RotateCcw className="w-4 h-4 mr-2" />
+                        New Test
+                      </Button>
+                      <Button 
+                        onClick={handleChooseLevel} 
+                        variant="outline" 
+                        size="lg"
+                        aria-label="Go to Home / Choose Level (Shortcut: H)"
+                        className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      >
+                        <Home className="w-4 h-4 mr-2" />
+                        Home
                       </Button>
                     </div>
                   </CardContent>
