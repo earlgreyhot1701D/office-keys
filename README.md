@@ -71,3 +71,18 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+## Hackathon Changes – HackVerse 2025
+
+This project was started on **August 4, 2025**, during the HackVerse hackathon period (July 31 – August 27).
+
+All changes listed below were made during the hackathon window.
+
+### August 4–27, 2025
+- **Aug 4:** Project initialized and base typing test built.
+- **Aug XX:** [Add brief description of feature or improvement]
+- **Aug XX:** [Add brief description of feature or improvement]
+- **Aug XX:** [Add brief description of feature or improvement]
+
+*(This section will be updated as new features are completed.)*
+
