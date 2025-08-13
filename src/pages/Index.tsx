@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Trophy, Target, Clock, Zap, Award, HelpCircle } from 'lucide-react';
 import { calculateTypingGrade, getGradeRequirements } from '@/lib/grading';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import HistoryCard from '@/components/HistoryCard';
+import { saveResult } from '@/lib/history';
 
 interface TypingStats {
   wpm: number;
@@ -31,6 +33,8 @@ const Index = () => {
     if (!bestStats || gameStats.wpm > bestStats.wpm) {
       setBestStats(gameStats);
     }
+    // Save result to history
+    saveResult({ ...gameStats, timestamp: Date.now() });
   };
 
   const handlePlayAgain = () => {
@@ -217,7 +221,12 @@ const Index = () => {
             />
           </div>
         )}
-
+        
+        {/* History */}
+        <div className="max-w-4xl mx-auto mt-12">
+          <HistoryCard />
+        </div>
+        
         {/* Tips */}
         <div className="max-w-4xl mx-auto mt-12">
           <Card>
