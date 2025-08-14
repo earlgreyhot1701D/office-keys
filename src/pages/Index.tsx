@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import HistoryCard from '@/components/HistoryCard';
 import { saveResult } from '@/lib/history';
-import { getRandomText, detectLevelFromText } from '@/lib/packs';
+import { getRandomText, detectLevelFromText, getNextText } from '@/lib/packs';
 
 interface TypingStats {
   wpm: number;
@@ -20,12 +20,20 @@ interface TypingStats {
 
 const Index = () => {
   const [currentText, setCurrentText] = useState("The quick brown fox jumps over the lazy dog. This sentence contains every letter of the alphabet. Practice makes perfect when learning to type faster.");
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [gameMode, setGameMode] = useState<'select' | 'play'>('select');
   const [stats, setStats] = useState<TypingStats | null>(null);
   const [bestStats, setBestStats] = useState<TypingStats | null>(null);
 
-  const handleTextSelect = (text: string) => {
-    setCurrentText(text);
+  const handleTextSelect = (text: string, selectedLevel?: 'short' | 'medium' | 'long') => {
+    // If user selected a level (not custom text), get next text from rotation
+    if (selectedLevel) {
+      const nextText = getNextText(selectedLevel, { advance: true });
+      setCurrentText(nextText);
+    } else {
+      // Custom text - use as-is
+      setCurrentText(text);
+    }
     setGameMode('play');
     setStats(null);
   };
@@ -45,7 +53,7 @@ const Index = () => {
 
   const handleChangeText = () => {
     const level = detectLevelFromText(currentText);
-    const next = getRandomText(level, currentText);
+    const next = getNextText(level, { advance: true, exclude: currentText });
     setCurrentText(next);
     setStats(null);
     setGameMode('play');
@@ -55,6 +63,19 @@ const Index = () => {
     setGameMode('select');
     setStats(null);
   };
+
+  // Handle initial load replacement
+  useEffect(() => {
+    if (isInitialLoad && gameMode === 'play') {
+      const defaultText = "The quick brown fox jumps over the lazy dog. This sentence contains every letter of the alphabet. Practice makes perfect when learning to type faster.";
+      if (currentText === defaultText) {
+        const level = detectLevelFromText(defaultText);
+        const nextText = getNextText(level, { advance: true, exclude: defaultText });
+        setCurrentText(nextText);
+      }
+      setIsInitialLoad(false);
+    }
+  }, [isInitialLoad, gameMode, currentText]);
 
   // Keyboard shortcuts with safety guards
   useEffect(() => {

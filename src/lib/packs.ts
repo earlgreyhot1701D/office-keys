@@ -61,3 +61,125 @@ export function detectLevelFromText(text: string): Level {
   if (count <= 60) return 'medium';
   return 'long';
 }
+
+// Storage keys for persistence
+const QUEUE_INDEX_KEY = 'ok_queueIndex_v1';
+const LAST_TEXT_KEY = 'ok_lastText_v1';
+
+// Default fallback text
+const DEFAULT_TEXT = `The quick brown fox jumps over the lazy dog; meanwhile, a cat naps—unbothered, uncaring.`;
+
+interface QueueIndices {
+  short: number;
+  medium: number;
+  long: number;
+}
+
+interface LastTexts {
+  short: string;
+  medium: string;
+  long: string;
+}
+
+function getStoredQueueIndices(): QueueIndices {
+  try {
+    const stored = localStorage.getItem(QUEUE_INDEX_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (e) {
+    console.warn('Failed to parse stored queue indices:', e);
+  }
+  return { short: -1, medium: -1, long: -1 };
+}
+
+function setStoredQueueIndices(indices: QueueIndices): void {
+  try {
+    localStorage.setItem(QUEUE_INDEX_KEY, JSON.stringify(indices));
+  } catch (e) {
+    console.warn('Failed to store queue indices:', e);
+  }
+}
+
+function getStoredLastTexts(): LastTexts {
+  try {
+    const stored = localStorage.getItem(LAST_TEXT_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (e) {
+    console.warn('Failed to parse stored last texts:', e);
+  }
+  return { short: '', medium: '', long: '' };
+}
+
+function setStoredLastText(level: Level, text: string): void {
+  try {
+    const lastTexts = getStoredLastTexts();
+    lastTexts[level] = text;
+    localStorage.setItem(LAST_TEXT_KEY, JSON.stringify(lastTexts));
+  } catch (e) {
+    console.warn('Failed to store last text:', e);
+  }
+}
+
+export function getNextText(
+  level: Level, 
+  opts: { advance?: boolean; exclude?: string } = {}
+): string {
+  const { advance = true, exclude } = opts;
+  
+  const pool = level === 'short' ? SHORT_TEXTS : level === 'medium' ? MEDIUM_TEXTS : LONG_TEXTS;
+  
+  // Fallback if pool is empty or has only one item that matches exclusions
+  if (pool.length === 0) {
+    console.warn(`Empty text pool for level "${level}", falling back to default text`);
+    return DEFAULT_TEXT;
+  }
+  
+  if (pool.length === 1 && (pool[0] === exclude || pool[0] === getStoredLastTexts()[level])) {
+    console.warn(`Only one text available for level "${level}" and it matches exclusions, falling back to default text`);
+    return DEFAULT_TEXT;
+  }
+  
+  const indices = getStoredQueueIndices();
+  const lastTexts = getStoredLastTexts();
+  
+  // Initialize with random starting index if first use
+  if (indices[level] === -1) {
+    indices[level] = Math.floor(Math.random() * pool.length);
+    setStoredQueueIndices(indices);
+  }
+  
+  let currentIndex = indices[level];
+  let chosenText = pool[currentIndex];
+  let attempts = 0;
+  const maxAttempts = pool.length;
+  
+  // Find next text that doesn't match exclusions
+  while (
+    attempts < maxAttempts && 
+    (chosenText === exclude || chosenText === lastTexts[level])
+  ) {
+    currentIndex = (currentIndex + 1) % pool.length;
+    chosenText = pool[currentIndex];
+    attempts++;
+  }
+  
+  // If we've tried all texts and they all match exclusions, just use the current one
+  if (attempts === maxAttempts && (chosenText === exclude || chosenText === lastTexts[level])) {
+    console.warn(`All texts for level "${level}" match exclusions, using current text anyway`);
+  }
+  
+  // Advance the queue index if requested
+  if (advance) {
+    const newIndices = { ...indices };
+    newIndices[level] = (currentIndex + 1) % pool.length;
+    setStoredQueueIndices(newIndices);
+  }
+  
+  // Always store the chosen text as the last served for this level
+  setStoredLastText(level, chosenText);
+  
+  return chosenText;
+}

@@ -6,34 +6,28 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 interface TextSelectorProps {
-  onTextSelect: (text: string) => void;
+  onTextSelect: (text: string, selectedLevel?: 'short' | 'medium' | 'long') => void;
   currentText: string;
 }
 
 const SAMPLE_TEXTS = [
   {
-    title: "Beginner",
+    title: "Short Passages",
     difficulty: "Easy",
-    text: "The quick brown fox jumps over the lazy dog. This sentence contains every letter of the alphabet. Practice makes perfect when learning to type faster."
+    level: "short" as const,
+    description: "Brief sentences perfect for building confidence and speed"
   },
   {
-    title: "Intermediate", 
+    title: "Medium Passages", 
     difficulty: "Medium",
-    text: "In the digital age, typing skills have become increasingly important for productivity and communication. Whether you're writing emails, coding, or creating documents, faster typing speeds can significantly improve your efficiency and reduce fatigue."
+    level: "medium" as const,
+    description: "Moderate length texts for developing consistency"
   },
   {
-    title: "Advanced",
+    title: "Long Passages",
     difficulty: "Hard", 
-    text: "Mastering the art of touch typing requires dedicated practice and proper technique. By maintaining correct finger placement on the home row keys and developing muscle memory through repetitive exercises, even complex punctuation and special characters become second nature."
-  },
-  {
-    title: "Programming",
-    difficulty: "Expert",
-    text: `function calculateTypingSpeed(startTime, endTime, charactersTyped) {
-  const timeInMinutes = (endTime - startTime) / 60000;
-  const wordsPerMinute = (charactersTyped / 5) / timeInMinutes;
-  return Math.round(wordsPerMinute);
-}`
+    level: "long" as const,
+    description: "Extended paragraphs for endurance and focus training"
   }
 ];
 
@@ -41,8 +35,8 @@ const TextSelector = ({ onTextSelect, currentText }: TextSelectorProps) => {
   const [customText, setCustomText] = useState('');
   const [showCustom, setShowCustom] = useState(false);
 
-  const handlePresetSelect = (text: string) => {
-    onTextSelect(text);
+  const handlePresetSelect = (level: 'short' | 'medium' | 'long') => {
+    onTextSelect('', level); // Pass empty text and the selected level
     setShowCustom(false);
   };
 
@@ -104,28 +98,25 @@ const TextSelector = ({ onTextSelect, currentText }: TextSelectorProps) => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {SAMPLE_TEXTS.map((sample, index) => (
                 <Card 
                   key={index}
-                  className={cn(
-                    "cursor-pointer transition-all hover:scale-105 hover:shadow-lg",
-                    sample.text === currentText && "ring-2 ring-primary"
-                  )}
-                  onClick={() => handlePresetSelect(sample.text)}
+                  className="cursor-pointer transition-all hover:scale-105 hover:shadow-lg"
+                  onClick={() => handlePresetSelect(sample.level)}
                 >
-                  <CardContent className="p-4">
+                  <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold">{sample.title}</h3>
+                      <h3 className="font-semibold text-lg">{sample.title}</h3>
                       <Badge className={getDifficultyColor(sample.difficulty)}>
                         {sample.difficulty}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground line-clamp-3 font-mono leading-relaxed">
-                      {sample.text}
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {sample.description}
                     </p>
-                    <div className="mt-3 text-xs text-muted-foreground">
-                      {sample.text.length} characters
+                    <div className="mt-4 text-xs text-muted-foreground font-medium">
+                      Click to start with a {sample.level} passage
                     </div>
                   </CardContent>
                 </Card>
