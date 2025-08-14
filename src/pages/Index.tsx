@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import TypingGame from '@/components/TypingGame';
 import TextSelector from '@/components/TextSelector';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,6 +24,8 @@ const Index = () => {
   const [gameMode, setGameMode] = useState<'select' | 'play'>('select');
   const [stats, setStats] = useState<TypingStats | null>(null);
   const [bestStats, setBestStats] = useState<TypingStats | null>(null);
+  const [announcement, setAnnouncement] = useState('');
+  const tryAgainButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleTextSelect = (text: string, selectedLevel?: 'short' | 'medium' | 'long') => {
     // If user selected a level (not custom text), get next text from rotation
@@ -49,6 +51,7 @@ const Index = () => {
 
   const handlePlayAgain = () => {
     setStats(null);
+    setAnnouncement('');
   };
 
   const handleChangeText = () => {
@@ -56,12 +59,14 @@ const Index = () => {
     const next = getNextText(level, { advance: true, exclude: currentText });
     setCurrentText(next);
     setStats(null);
+    setAnnouncement('');
     setGameMode('play');
   };
 
   const handleChooseLevel = () => {
     setGameMode('select');
     setStats(null);
+    setAnnouncement('');
   };
 
   // Handle initial load replacement
@@ -115,8 +120,30 @@ const Index = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [stats]);
 
+  // Screen reader announcement and focus management for test completion
+  useEffect(() => {
+    if (stats) {
+      const grade = calculateTypingGrade(stats.wpm, stats.accuracy);
+      setAnnouncement(`Test complete. Grade ${grade.grade}. ${stats.wpm} WPM. ${stats.accuracy}% accuracy.`);
+      
+      // Focus the Try Again button when results appear
+      setTimeout(() => {
+        tryAgainButtonRef.current?.focus();
+      }, 100);
+    }
+  }, [stats]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      {/* Screen reader announcements */}
+      <div 
+        role="status" 
+        aria-live="polite" 
+        className="sr-only"
+        aria-atomic="true"
+      >
+        {announcement}
+      </div>
       {/* Persistent Header Nav */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -335,6 +362,7 @@ const Index = () => {
                     {/* Action Buttons */}
                     <div className="flex flex-wrap justify-center gap-3 pt-4">
                       <Button 
+                        ref={tryAgainButtonRef}
                         onClick={handlePlayAgain} 
                         size="lg"
                         aria-label="Try Again with same text (Shortcut: R)"
