@@ -91,6 +91,8 @@ All changes listed below were made during the hackathon window.
 - **Aug 14:** Added within-level phases and Focus indicator; New Test advances phase in order.
 - **Aug 14:** Added adaptive practice (next test length/punctuation/focus based on last run).
 - **Aug 14:** Added first-run instructions (how to play + hand position) with “don’t show again” and Help reopen.
+- **Aug 14:** Fixed adaptive behavior to keep the current level; adaptive now adjusts focus within the level (phase/punctuation) without auto-changing levels.
+
 - **Aug XX:** [Add brief description of feature or improvement]
 
 *(This section will be updated as new features are completed.)*
