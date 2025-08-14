@@ -70,12 +70,12 @@ const Index = () => {
   };
 
   const handleChangeText = () => {
-    const level = detectLevelFromText(currentText);
+    const currentLevel = detectLevelFromText(currentText);
     
     // Use adaptive config if available, otherwise advance phase
     let nextText;
     if (nextConfig) {
-      nextText = getNextText(nextConfig.length, { 
+      nextText = getNextText(currentLevel, { 
         advance: true, 
         exclude: currentText, 
         forNewTest: true,
@@ -83,7 +83,7 @@ const Index = () => {
       });
       setNextConfig(null); // Clear after use
     } else {
-      nextText = getNextText(level, { advance: true, exclude: currentText, forNewTest: true });
+      nextText = getNextText(currentLevel, { advance: true, exclude: currentText, forNewTest: true });
     }
     
     setCurrentText(nextText);
