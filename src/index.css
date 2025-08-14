@@ -115,4 +115,39 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Accessibility classes */
+  .ok-contrast {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 5%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 85%;
+    --border: 0 0% 20%;
+    --input: 0 0% 15%;
+  }
+
+  .ok-text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  .ok-text-lg h1 {
+    font-size: 3.5rem;
+    line-height: 1;
+  }
+
+  .ok-text-lg h2 {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+  }
+
+  .ok-text-lg h3 {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+
+  .ok-dyslexia {
+    font-family: 'Comic Sans MS', 'Trebuchet MS', 'Verdana', sans-serif;
+  }
 }

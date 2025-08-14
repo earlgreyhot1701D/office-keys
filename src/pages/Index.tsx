@@ -9,7 +9,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import HistoryCard from '@/components/HistoryCard';
 import { saveResult } from '@/lib/history';
-import { getRandomText, detectLevelFromText, getNextText } from '@/lib/packs';
+import { getRandomText, detectLevelFromText, getNextText, getCurrentPhase, detectPhaseFromText } from '@/lib/packs';
+import { nextConfigFrom, type AdaptiveConfig } from '@/lib/adaptive';
+import AccessibilitySettings from '@/components/AccessibilitySettings';
+import FirstRunDialog, { shouldShowFirstRun } from '@/components/FirstRunDialog';
 
 interface TypingStats {
   wpm: number;
@@ -25,7 +28,14 @@ const Index = () => {
   const [stats, setStats] = useState<TypingStats | null>(null);
   const [bestStats, setBestStats] = useState<TypingStats | null>(null);
   const [announcement, setAnnouncement] = useState('');
+  const [nextConfig, setNextConfig] = useState<AdaptiveConfig | null>(null);
+  const [showFirstRun, setShowFirstRun] = useState(false);
   const tryAgainButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Check for first run on mount
+  useEffect(() => {
+    setShowFirstRun(shouldShowFirstRun());
+  }, []);
 
   const handleTextSelect = (text: string, selectedLevel?: 'short' | 'medium' | 'long') => {
     // If user selected a level (not custom text), get next text from rotation
@@ -45,8 +55,13 @@ const Index = () => {
     if (!bestStats || gameStats.wpm > bestStats.wpm) {
       setBestStats(gameStats);
     }
+    
     // Save result to history
     saveResult({ ...gameStats, timestamp: Date.now() });
+    
+    // Compute adaptive config for next test
+    const adaptiveConfig = nextConfigFrom(gameStats);
+    setNextConfig(adaptiveConfig);
   };
 
   const handlePlayAgain = () => {
@@ -56,8 +71,22 @@ const Index = () => {
 
   const handleChangeText = () => {
     const level = detectLevelFromText(currentText);
-    const next = getNextText(level, { advance: true, exclude: currentText });
-    setCurrentText(next);
+    
+    // Use adaptive config if available, otherwise advance phase
+    let nextText;
+    if (nextConfig) {
+      nextText = getNextText(nextConfig.length, { 
+        advance: true, 
+        exclude: currentText, 
+        forNewTest: true,
+        phase: nextConfig.focusTag 
+      });
+      setNextConfig(null); // Clear after use
+    } else {
+      nextText = getNextText(level, { advance: true, exclude: currentText, forNewTest: true });
+    }
+    
+    setCurrentText(nextText);
     setStats(null);
     setAnnouncement('');
     setGameMode('play');
@@ -158,73 +187,103 @@ const Index = () => {
             Office Keys
           </Button>
 
-          {/* Right: Navigation */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleChooseLevel}
-              aria-label="Go to Home / Choose Level (Shortcut: H)"
-              className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-            >
-              <Home className="w-4 h-4 mr-2" />
-              Home
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleChangeText}
-              aria-label="Start New Test with different text (Shortcut: N)"
-              className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-            >
-              <RotateCcw className="w-4 h-4 mr-2" />
-              New Test
-            </Button>
-            
-            {/* Level Badge */}
-            <div className="flex items-center gap-1">
-              <div 
-                className="px-2 py-1 text-xs font-medium bg-muted rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2" 
-                tabIndex={0}
-                aria-label={`Level: ${detectLevelFromText(currentText)}`}
-              >
-                Level: {detectLevelFromText(currentText)}
-              </div>
+            {/* Right: Navigation */}
+            <div className="flex items-center gap-2">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 onClick={handleChooseLevel}
-                aria-label="Change level (open selector)"
-                className="text-xs px-2 py-1 h-auto focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                aria-label="Go to Home / Choose Level (Shortcut: H)"
+                className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               >
-                Change
+                <Home className="w-4 h-4 mr-2" />
+                Home
               </Button>
-            </div>
-            
-            {/* Keyboard Shortcuts Help */}
-            <Tooltip>
-              <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleChangeText}
+                aria-label="Start New Test with different text (Shortcut: N)"
+                className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                New Test
+              </Button>
+              
+              {/* Level and Focus Badges */}
+              <div className="flex items-center gap-1">
+                <div 
+                  className="px-2 py-1 text-xs font-medium bg-muted rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2" 
+                  tabIndex={0}
+                  aria-label={`Level: ${detectLevelFromText(currentText)}`}
+                >
+                  Level: {detectLevelFromText(currentText)}
+                </div>
+                <div 
+                  className="px-2 py-1 text-xs font-medium bg-accent/20 text-accent-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2" 
+                  tabIndex={0}
+                  aria-label={`Focus: ${detectPhaseFromText(currentText)}`}
+                >
+                  Focus: {detectPhaseFromText(currentText)}
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
-                  aria-label="View keyboard shortcuts"
-                  className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  onClick={handleChooseLevel}
+                  aria-label="Change level (open selector)"
+                  className="text-xs px-2 py-1 h-auto focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 >
-                  <HelpCircle className="w-4 h-4" />
+                  Change
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs">
-                <div className="space-y-2 text-sm">
-                  <p className="font-medium">Keyboard Shortcuts:</p>
-                  <div className="space-y-1">
-                    <p><kbd className="px-1 py-0.5 text-xs bg-muted rounded">H</kbd> or <kbd className="px-1 py-0.5 text-xs bg-muted rounded">Esc</kbd> - Home</p>
-                    <p><kbd className="px-1 py-0.5 text-xs bg-muted rounded">N</kbd> - New Test</p>
-                    <p><kbd className="px-1 py-0.5 text-xs bg-muted rounded">R</kbd> - Try Again (when completed)</p>
+              </div>
+              
+              {/* Accessibility Settings */}
+              <AccessibilitySettings />
+              
+              {/* Keyboard Shortcuts Help / First Run Dialog */}
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    aria-label="View help and keyboard shortcuts"
+                    className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  >
+                    <HelpCircle className="w-4 h-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-lg" role="dialog" aria-modal="true">
+                  <DialogHeader>
+                    <DialogTitle className="text-xl font-bold">Welcome to Office Keys</DialogTitle>
+                  </DialogHeader>
+                  
+                  <div className="space-y-6 pt-4">
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="font-semibold mb-2">How it works:</h3>
+                        <ul className="space-y-1 text-sm text-muted-foreground ml-4">
+                          <li>• New Test gives a different passage at the same level</li>
+                          <li>• Home opens the level selector (Short / Medium / Long)</li>
+                          <li>• Shortcuts: N New Test, R Try Again, H/Esc Home</li>
+                        </ul>
+                      </div>
+                      
+                      <div>
+                        <h3 className="font-semibold mb-2">Hand position:</h3>
+                        <ul className="space-y-1 text-sm text-muted-foreground ml-4">
+                          <li>• Index fingers on F and J (feel the bumps)</li>
+                          <li>• Keep wrists straight, eyes on the text (not the keys)</li>
+                        </ul>
+                      </div>
+                      
+                      <p className="text-xs text-muted-foreground italic">
+                        Privacy note: Results save on this device only (no account needed).
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+                </DialogContent>
+              </Dialog>
+            </div>
         </div>
       </header>
 
@@ -446,6 +505,12 @@ const Index = () => {
           </Card>
         </div>
       </div>
+
+      {/* First Run Dialog */}
+      <FirstRunDialog 
+        isOpen={showFirstRun} 
+        onOpenChange={setShowFirstRun} 
+      />
     </div>
   );
 };
