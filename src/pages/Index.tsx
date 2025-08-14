@@ -154,6 +154,26 @@ const Index = () => {
               New Test
             </Button>
             
+            {/* Level Badge */}
+            <div className="flex items-center gap-1">
+              <div 
+                className="px-2 py-1 text-xs font-medium bg-muted rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2" 
+                tabIndex={0}
+                aria-label={`Level: ${detectLevelFromText(currentText)}`}
+              >
+                Level: {detectLevelFromText(currentText)}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleChooseLevel}
+                aria-label="Change level (open selector)"
+                className="text-xs px-2 py-1 h-auto focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              >
+                Change
+              </Button>
+            </div>
+            
             {/* Keyboard Shortcuts Help */}
             <Tooltip>
               <TooltipTrigger asChild>
