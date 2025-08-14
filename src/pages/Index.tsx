@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import HistoryCard from '@/components/HistoryCard';
 import { saveResult } from '@/lib/history';
-import { getRandomText, detectLevelFromText, getNextText, getCurrentPhase, detectPhaseFromText } from '@/lib/packs';
+import { getRandomText, detectLevelFromText, getNextText, getCurrentPhase, detectPhaseFromText, getNextPhase, type Phase } from '@/lib/packs';
 import { nextConfigFrom, type AdaptiveConfig } from '@/lib/adaptive';
 import AccessibilitySettings from '@/components/AccessibilitySettings';
 import FirstRunDialog, { shouldShowFirstRun } from '@/components/FirstRunDialog';
@@ -69,6 +69,33 @@ const Index = () => {
     setAnnouncement('');
   };
 
+  const handleNewTest = () => {
+    const currentLevel = detectLevelFromText(currentText);
+    const currentPhase = detectPhaseFromText(currentText);
+    
+    // Determine target phase: use adaptive config or advance to next phase
+    let targetPhase: Phase;
+    if (nextConfig?.focusTag) {
+      targetPhase = nextConfig.focusTag;
+      setNextConfig(null); // Clear after use
+    } else {
+      targetPhase = getNextPhase(currentPhase);
+    }
+    
+    const nextText = getNextText(currentLevel, { 
+      advance: true,
+      exclude: currentText, 
+      forNewTest: true,
+      phase: targetPhase,
+      avoidRecent: 5
+    });
+    
+    setCurrentText(nextText);
+    setStats(null);
+    setAnnouncement('');
+    setGameMode('play');
+  };
+
   const handleChangeText = () => {
     const currentLevel = detectLevelFromText(currentText);
     
@@ -79,17 +106,40 @@ const Index = () => {
         advance: true, 
         exclude: currentText, 
         forNewTest: true,
-        phase: nextConfig.focusTag 
+        phase: nextConfig.focusTag,
+        avoidRecent: 5
       });
       setNextConfig(null); // Clear after use
     } else {
-      nextText = getNextText(currentLevel, { advance: true, exclude: currentText, forNewTest: true });
+      nextText = getNextText(currentLevel, { 
+        advance: true, 
+        exclude: currentText, 
+        forNewTest: true,
+        avoidRecent: 5
+      });
     }
     
     setCurrentText(nextText);
     setStats(null);
     setAnnouncement('');
     setGameMode('play');
+  };
+
+  const handleChangeTextSamePhase = () => {
+    const currentLevel = detectLevelFromText(currentText);
+    const currentPhase = detectPhaseFromText(currentText);
+    
+    const nextText = getNextText(currentLevel, {
+      advance: false,              // do not step phase rotation
+      exclude: currentText,
+      phase: currentPhase,
+      avoidRecent: 5
+    });
+    
+    setCurrentText(nextText);
+    setStats(null);
+    setAnnouncement('');
+    // Stay in 'play' mode
   };
 
   const handleChooseLevel = () => {
@@ -134,7 +184,7 @@ const Index = () => {
           break;
         case 'n':
           event.preventDefault();
-          handleChangeText();
+          handleNewTest();
           break;
         case 'r':
           if (stats) {
@@ -202,7 +252,7 @@ const Index = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleChangeText}
+                onClick={handleNewTest}
                 aria-label="Start New Test with different text (Shortcut: N)"
                 className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               >
@@ -241,48 +291,15 @@ const Index = () => {
               <AccessibilitySettings />
               
               {/* Keyboard Shortcuts Help / First Run Dialog */}
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    aria-label="View help and keyboard shortcuts"
-                    className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                  >
-                    <HelpCircle className="w-4 h-4" />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-lg" role="dialog" aria-modal="true">
-                  <DialogHeader>
-                    <DialogTitle className="text-xl font-bold">Welcome to Office Keys</DialogTitle>
-                  </DialogHeader>
-                  
-                  <div className="space-y-6 pt-4">
-                    <div className="space-y-4">
-                      <div>
-                        <h3 className="font-semibold mb-2">How it works:</h3>
-                        <ul className="space-y-1 text-sm text-muted-foreground ml-4">
-                          <li>• New Test gives a different passage at the same level</li>
-                          <li>• Home opens the level selector (Short / Medium / Long)</li>
-                          <li>• Shortcuts: N New Test, R Try Again, H/Esc Home</li>
-                        </ul>
-                      </div>
-                      
-                      <div>
-                        <h3 className="font-semibold mb-2">Hand position:</h3>
-                        <ul className="space-y-1 text-sm text-muted-foreground ml-4">
-                          <li>• Index fingers on F and J (feel the bumps)</li>
-                          <li>• Keep wrists straight, eyes on the text (not the keys)</li>
-                        </ul>
-                      </div>
-                      
-                      <p className="text-xs text-muted-foreground italic">
-                        Privacy note: Results save on this device only (no account needed).
-                      </p>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowFirstRun(true)}
+                aria-label="Open help and shortcuts"
+                className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              >
+                <HelpCircle className="w-4 h-4" />
+              </Button>
             </div>
         </div>
       </header>
@@ -431,7 +448,7 @@ const Index = () => {
                         Try Again
                       </Button>
                       <Button 
-                        onClick={handleChangeText} 
+                        onClick={handleNewTest} 
                         variant="outline" 
                         size="lg"
                         aria-label="Change Text to new passage (Shortcut: N)"
@@ -468,10 +485,10 @@ const Index = () => {
           <div className="space-y-6">
             <div className="flex justify-center">
               <Button
-                onClick={handleChangeText}
+                onClick={handleChangeTextSamePhase}
                 variant="outline"
                 size="sm"
-                aria-label="Change to a random passage at the same length level"
+                aria-label="Change to a random passage at the same phase and level"
               >
                 Change Text
               </Button>
