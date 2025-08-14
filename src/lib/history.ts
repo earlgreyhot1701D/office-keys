@@ -43,13 +43,19 @@ export function clearHistory(): void {
 }
 
 export function toCSV(entries: HistoryEntry[]): string {
-  const header = ["Date", "WPM", "Accuracy", "Errors", "Time (s)"];
+  const header = ["Date", "WPM", "Accuracy", "Errors", "Time"];
   const rows = entries.map((e) => [
-    new Date(e.timestamp).toISOString(),
+    new Date(e.timestamp).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      hour: 'numeric', 
+      minute: '2-digit', 
+      hour12: true 
+    }),
     String(e.wpm),
-    `${e.accuracy}`,
+    `${e.accuracy}%`,
     String(e.errors),
-    String(e.timeElapsed),
+    `${e.timeElapsed}s`,
   ]);
   const all = [header, ...rows];
   return all

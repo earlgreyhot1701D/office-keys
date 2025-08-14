@@ -59,7 +59,13 @@ const HistoryCard = () => {
                 {history.map((h, idx) => (
                   <TableRow key={`${h.timestamp}-${idx}`}>
                     <TableCell>
-                      {new Date(h.timestamp).toLocaleString()}
+                      {new Date(h.timestamp).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        hour: 'numeric', 
+                        minute: '2-digit', 
+                        hour12: true 
+                      })}
                     </TableCell>
                     <TableCell className="font-medium text-primary">
                       {h.wpm}
