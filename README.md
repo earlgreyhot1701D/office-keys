@@ -84,6 +84,7 @@ All changes listed below were made during the hackathon window.
 - **Aug 12:** Added randomized “Change Text” using level-based packs for variety during practice.
 - **Aug 13:** Added persistent navigation (Home, New Test, clickable title), safe keyboard shortcuts, and shortcuts help.
 - **Aug 14:** Updated hero branding and browser metadata to “Office Keys”.
+- **Aug 14:** Added persistent per-level rotation so passages don’t repeat across refreshes or return visits (with safe fallback).
 
 - **Aug XX:** [Add brief description of feature or improvement]
 
