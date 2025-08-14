@@ -164,10 +164,10 @@ const Index = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-4">
-            TypeSpeed Pro
+            Office Keys
           </h1>
           <p className="text-xl text-muted-foreground">
-            Master your typing skills through focused practice and repetition
+            Foundational digital skills for everyone
           </p>
         </div>
 
