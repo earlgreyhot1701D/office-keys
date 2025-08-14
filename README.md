@@ -87,7 +87,10 @@ All changes listed below were made during the hackathon window.
 - **Aug 14:** Added persistent per-level rotation so passages don’t repeat across refreshes or return visits (with safe fallback).
 - **Aug 14:** Added help hint for level badge and improved History (readable timestamps, CSV aligned with table).
 - **Aug 14:** Added screen-reader announcement for results and initial focus on Try Again.
-
+- **Aug 14:** Added accessibility settings with persistent toggles (High contrast, Large text, Dyslexia font).
+- **Aug 14:** Added within-level phases and Focus indicator; New Test advances phase in order.
+- **Aug 14:** Added adaptive practice (next test length/punctuation/focus based on last run).
+- **Aug 14:** Added first-run instructions (how to play + hand position) with “don’t show again” and Help reopen.
 - **Aug XX:** [Add brief description of feature or improvement]
 
 *(This section will be updated as new features are completed.)*
