@@ -93,6 +93,7 @@ All changes listed below were made during the hackathon window.
 - **Aug 14:** Added first-run instructions (how to play + hand position) with “don’t show again” and Help reopen.
 - **Aug 14:** Fixed adaptive behavior to keep the current level; adaptive now adjusts focus within the level (phase/punctuation) without auto-changing levels.
 - **Aug 14:** Added starter passages (Short/Medium/Long across Letters/Numbers/Punctuation/Mixed) and improved variety with shuffled rotation + recent-avoid.
+- **Aug 14:** Help button now opens the same First-Run dialog; New Test advances phase while Change Text keeps phase; added recent-avoid in next-text selection.
 
 - **Aug XX:** [Add brief description of feature or improvement]
 
