@@ -109,7 +109,7 @@ git clone <YOUR_GIT_URL>
 cd <YOUR_PROJECT_NAME>
 npm install
 
-## Hackathon compliance & changelog (HackVerse 2025)
+### Hackathon compliance & changelog (HackVerse 2025)
 
 **Hackathon window:** July 31 – Aug 27, 2025  
 **Project start:** Aug 4, 2025 (all items below were completed within the window)
