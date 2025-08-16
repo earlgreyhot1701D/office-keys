@@ -1,0 +1,103 @@
+
+### ✅ **docs/hackathon.md**
+
+```markdown
+# Hackathon Storyboard & Project Justification
+
+## Project Title
+Office Keys (working name: "TypeSpeed Pro")
+
+**Developer:** La Shara Cordero  
+**Intended Platform:** Santa Barbara County Superior Court intranet  
+**Project Type:** Foundational digital skills tool
+
+---
+
+## 1) The Need
+
+- **Digital skills are baseline:** ~92% of U.S. jobs require digital skills.  
+  Sources: National Skills Coalition; Federal Reserve Bank of Atlanta.
+- **Skills gap persists:** ~1/3 of U.S. workers lack basic digital skills (typing, email).
+- **Public sector challenge:** Many staff learn on the job; available tools are often blocked or too complex.
+
+> **Why typing?**  
+> If an employee types ~2,000 words/day:  
+> • 40 WPM → ~50 min of typing  
+> • 60 WPM → ~33 min  
+> ≈ 17 min saved/day → ≈ 85 min/week  
+> _Pure typing time only. Sources below._
+
+---
+
+## 2) Storyboard (User Journey)
+1. Select level → Short/Medium/Long  
+2. New Test → Loads randomized, rotation-controlled passage  
+3. Typing mode → Live metrics  
+4. Results → WPM/accuracy/errors/time + grade, history tracking  
+5. Adaptive suggestion gently nudges next focus (digits, punctuation)  
+6. Accessibility + first-run help available anytime
+
+---
+
+## 3) Research Foundation (Selected)
+
+- National Skills Coalition — *Closing the Digital Skill Divide*  
+- Federal Reserve Bank of Atlanta — *Baseline for Work: 92% of Jobs Require Digital Skills*  
+- Li, J. et al. *Digital Literacy in the Workforce* (NIH/PMC)  
+- Harvard Business Review — *How to Spend Way Less Time on Email Every Day*  
+- EmailAnalytics — Typical email word count  
+- TypingMaster — Typing time calculator  
+- TypingPal — Average adult WPM ≈ 40
+
+---
+
+## 4) Court Strategic Alignment
+
+| Strategic Goal          | Alignment                                               |
+|-------------------------|---------------------------------------------------------|
+| Workforce development   | Upskilling via no-cost, self-paced practice             |
+| Digital transformation  | Reinforces core digital fluency                         |
+| Equity & access         | Low-barrier tool for varied starting points             |
+| Training & retention    | Non-punitive practice with visible progress             |
+
+---
+
+## Hackathon Compliance & Changelog (HackVerse 2025)
+
+**Hackathon window:** July 31 – Aug 27 2025  
+**Project start:** Aug 4 2025
+
+- Aug 4 — Base typing test  
+- Aug 12 — LocalStorage results history + CSV export  
+- Aug 12 — Randomized “Change Text” engine  
+- Aug 13 — Accessible navigation + shortcuts + help  
+- Aug 14 — Rebranded to Office Keys  
+- Aug 14 — Repeat-avoid across refreshes  
+- Aug 14 — Screen reader / focus polish  
+- Aug 14 — Accessibility toggles persisted  
+- Aug 14 — Phase rotation (letters → numbers → punctuation → mixed)  
+- Aug 14 — Adaptive practice logic added  
+- Aug 14 — First-run onboarding dialog  
+- Aug 14 — Expanded starter passages + smarter randomization  
+
+---
+
+## Roadmap (Post-Hackathon)
+
+- Court-specific text packs (jury summons, notices, minute orders)  
+- Supervisor export or dashboard  
+- Progress gamification (badges/streaks)  
+- Multi-profile / nicknames  
+- Spanish UI + practice packs  
+
+---
+
+## Citations & Sources
+
+1. National Skills Coalition (2023), *Closing the Digital Skill Divide*.  
+2. Federal Reserve Bank of Atlanta (2023), *Baseline for Work: 92% of Jobs Require Digital Skills*.  
+3. Li, J. et al. (2023), *Digital Literacy in the Workforce*, NIH/PMC.  
+4. Harvard Business Review (2019), *How to Spend Way Less Time on Email Every Day*.  
+5. EmailAnalytics — *Ideal Email Length & Word Count*.  
+6. TypingMaster — *Typing Time Savings Calculator*.  
+7. TypingPal — *What Is a Good Typing Speed?*
